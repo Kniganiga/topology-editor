@@ -3,6 +3,7 @@ import paper from 'paper';
 import {TP} from './components/rectangles.js';
 import { single_joint,dual_joint } from './components/joints.js';
 
+
 const componentMapping = new Map([
     ['PA',PA],
     ['NA',NA],
@@ -20,53 +21,62 @@ var filename = "output.cif";
 paper.setup(document.querySelector('#window'));
 
 
-function parseCIF(filename) {
-   const lines = fs.readFileSync(filename, 'utf8').split('\n');
+function parseCIF(file) {
+    let reader = new FileReader();
+    reader.readAsText(file);
+    reader.onload = function() {
+    console.log(reader.result);
+        for (let line of reader.result.split("\n")) {
+            if (componentMapping.has(line.slice(0,2))){
+                const params = line.slice(3).split(' ').map(Number);
+                console.log("params =",params)
+                componentMapping.get(line.slice(0,2))({start:[params[0],params[1]], end:[params[2],params[3]]});
+            }
+            else if (['CPA', 'CPK', 'CPE', 'CNA', 'CNK', 'CNE', 'CSI', 'CM1'].includes(line.slice(0,3))){
+                const params = line.slice(4).split(' ').map(Number);
+                single_joint({center:[params[0],params[1]],type:line.slice(0,3)});
+            }
+            else if  (line.slice(0,2) ==  'CW'){
+                const params = line.slice(3).split(' ').map(Number);
+                single_joint({center:[params[0],params[1]],type:line.slice(0,2)});
+            }
+            else if (['CENAPE','CEPENA','CEPANE','CENEPA'].includes(line.slice(0,6))){
+                const params = line.slice(7).split(' ').map(Number);
+                dual_joint({start:[params[0], params[1]], end:[params[2], params[3]],type:line.slice(0,6)});
+            }
+        }
+    }
+    reader.onerror = function() {
+        console.log(reader.error);
+      };
 
-   for (let line of lines) {
-    line = line.trim();
 
-    if (line.slice(0,3) in componentMapping){
-        const params = lines.split(' ').map(Number);
-        lines_mapping.get(line.splice(0,3))({start:[params[0],params[1]], end:[params[2],params[3]]});
-    }
-    if (line.spice(0,5) in ['CPA', 'CPK', 'CPE', 'CNA', 'CNK', 'CNE', 'CSI', 'CM1', 'CW']){
-        const params = lines.split(' ').map(Number);
-        single_joint({center:[params[0],params[1]]});
-    }
-    if (line.splice(0,7) in ['CENAPE','CEPENA','CEPANE','CENEPA']){
-        const params = lines.split(' ').map(Number);
-        dual_joint({start:[params[0], params[1]], end:[params[2], params[3]]});
-    }
-}
 }
 
 function exportCIF(){
     var file_data = "";
-    for (let layer in paper.project.getItems({recursive : false})){
-        console.log(layer[0]);
-        for (let item in layer.getItems({recursive:false})){
-            if (item.name != null){
-                if (item.name =='TP'){
-                    file_data+="DS\nLAYER "+layer.id + "\n" + item.name + " ";
+    let layer = paper.project.activeLayer.children
+        for (var i =0;i<layer.length;i++){
+            if (layer[i].name != null){
+                console.log(layer[i]);
+                if (layer[i].name =='TP'){
+                    file_data+="DS\nLAYER "+paper.project.activeLayer.id + "\n" + layer[i].name + " ";
                     // Transistor
-                    file_data+=item.name + " "+ item.children[2].firstSegment.point.x + " "+ item.children[2].firstSegment.point.y+ " " +item.children[2].lastSegment.point.x+ " "+item.children[2].lastSegment.point.x;
-
+                    file_data+=layer[i].children[2].firstSegment.point.x + " "+ layer[i].children[2].firstSegment.point.y+ " " +layer[i].children[2].lastSegment.point.x+ " "+layer[i].children[2].lastSegment.point.x+"\nDF\n";
                 }
-                else if (item.name in ['CPA', 'CPK', 'CPE', 'CNA', 'CNK', 'CNE', 'CSI', 'CM1', 'CW']){
-                    file_data+="DS\nLAYER "+layer.id + "\n" + item.name + " ";
+                else if (['CPA', 'CPK', 'CPE', 'CNA', 'CNK', 'CNE', 'CSI', 'CM1', 'CW'].includes(layer[i].name)){
+                    file_data+="DS\nLAYER "+layer.id + "\n" + layer[i].name + " ";
                     //Point 
-                   file_data+=item.name + " "+ item.position.x + " " + item.position.y;
+                   file_data+=layer[i].position.x + " " + layer[i].position.y+"\nDF\n";
                 }
                 else{
-                    file_data+="DS\nLAYER "+layer.id + "\n" + item.name + " ";
+                    file_data+="DS\nLAYER "+paper.project.activeLayer.id + "\n" + layer[i].name + " ";
                     //Start and end, first and last segment
-                    file_data+=item.name + " "+ item.firstSegment.point.x + " "+ item.children[2].firstSegment.point.y+ " " +item.children[2].lastSegment.point.x+ " "+item.children[2].lastSegment.point.x;
+                    file_data+=layer[i].firstSegment.point.x + " "+ layer[i].firstSegment.point.y+ " " +layer[i].lastSegment.point.x+ " "+layer[i].lastSegment.point.y+"\nDF\n";
                 }
-
             }
-    }
-    }
+        }
+    console.log(file_data);    
     return file_data;
 }
 var drawGridLines = function(num_rectangles_wide, num_rectangles_tall, boundingRect) {
@@ -134,12 +144,12 @@ function download(data, filename, type) {
 
 const cifImport = document.getElementById('cifImport');
 cifImport.addEventListener('change', (event) => {
-   parseCIF(event.target.files); 
+    console.log(event.target.files[0]);
+   parseCIF(event.target.files[0]); 
 });
 
 const cifExport = document.getElementById('cifExport');
 cifExport.addEventListener('click', (event) => {
-    
     download(exportCIF(), filename);
 });
 
