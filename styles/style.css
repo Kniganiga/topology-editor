@@ -1,9 +1,41 @@
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
-html,
 body {
-    margin: 0;
-    padding: 0;
+  margin:0px;
+  padding:0px;
+  display: flex;
+}
+
+#sideMenu {
+  width: 200px; /* adjust as needed */
+  padding: 10px;
+  border-right: 1px solid #ccc; /* add a border to the right side of the menu */
+}
+
+#layerMenu h5 {
+  margin-bottom: 5px;
+}
+
+#layerMenu .layerItem {
+  display: flex;
+  align-items: center;
+}
+
+#layerMenu .layerItem img {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+
+
+#window {
+  flex-grow: 1;
+}
+.toolIcon{
+  width: 30px;
+  height: 30px;
+  display: block;
+  margin-bottom: 10%;
 }
