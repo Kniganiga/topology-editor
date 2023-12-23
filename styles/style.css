@@ -8,11 +8,6 @@ body {
   display: flex;
 }
 
-#sideMenu {
-  width: 200px; /* adjust as needed */
-  padding: 10px;
-  border-right: 1px solid #ccc; /* add a border to the right side of the menu */
-}
 
 #layerMenu h5 {
   margin-bottom: 5px;
@@ -33,9 +28,50 @@ body {
 #window {
   flex-grow: 1;
 }
+
 .toolIcon{
   width: 30px;
   height: 30px;
   display: block;
   margin-bottom: 10%;
+}
+
+.wrapper {
+  display: flex;
+  width: 100vw;
+}
+
+.coordsWidow {
+  height: 40px;
+}
+
+.coordsWidow p {
+  margin: 5px 0;
+  font-size: 12px;
+}
+
+#sideMenu {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+}
+.menu {
+  padding: 10px;
+  width: 90px;
+}
+
+.menu .title {
+  width: 120px;
+  margin: 15px 0;
+}
+.canvas {
+  border: 1px solid black;
+  width: 100%;
+  height: 100vh
+}
+
+.canvas [resize] {
+  width: 100%;
+  height: 100%;
 }

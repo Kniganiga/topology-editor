@@ -8,44 +8,56 @@
     <script src="./js/main.js" type="module"></script>
 </head>
 <body>
-    <div id="sideMenu">
-        <h5>Coords</h5>
-        <p id = "coordWindow">0,0</p>
+    <div class="wrapper">
+        <div id="sideMenu" class="menu">
+            <div>
+                <h5 class="title">Coords</h5>
 
-        <input type="file" name="cifFile" id="importCIF" style="display:none">
-        <label for = "importCIF"><img  class="toolIcon" src="./assets/icons/import.svg" alt="Import" ></label>
+                <input type="file" name="cifFile" id="importCIF" style="display:none">
+                <label for = "importCIF"><img  class="toolIcon" src="./assets/icons/import.svg" alt="Import" ></label>
 
-        <img id="exportCIF" class="toolIcon" src="./assets/icons/export.svg" alt="Export">
+                <img id="exportCIF" class="toolIcon" src="./assets/icons/export.svg" alt="Export">
 
-        <img id="reset" class="toolIcon" src="./assets/icons/reset.svg" alt="Reset">
-        <img id="zoomIn" class="toolIcon" src="./assets/icons/zoomIn.svg" alt="Reset">
-        <img id="zoomOut" class="toolIcon" src="./assets/icons/zoomOut.svg" alt="Reset">
-    </div>
-    
-    <canvas id="window" style="width: 100vw; height: 100vh"></canvas>
-    <div id = "layerMenu">
+                <img id="reset" class="toolIcon" src="./assets/icons/reset.svg" alt="Reset">
+                <img id="zoomIn" class="toolIcon" src="./assets/icons/zoomIn.svg" alt="Reset">
+                <img id="zoomOut" class="toolIcon" src="./assets/icons/zoomOut.svg" alt="Reset">
+            </div>
 
-        <h5>Layers</h5>
-        <div class="layerItem" id = "PA">
-            <img src="./assets/icons/export.svg" alt="">
-            <p>PA</p>
+
+            <div id="coordWindow" class="coordsWidow">
+                <p>x: -</p>
+                <p>y: -</p>
+            </div>
         </div>
-        <div class="layerItem" id = "NA">
-            <img src="./assets/icons/export.svg" alt="">
-            <p>NA</p>
+
+
+        <canvas id="window" class="canvas" style=""></canvas>
+
+        <div id="layerMenu" class="menu">
+
+            <h5>Layers</h5>
+            <div class="layerItem" id = "PA">
+                <img src="./assets/icons/export.svg" alt="">
+                <p>PA</p>
+            </div>
+            <div class="layerItem" id = "NA">
+                <img src="./assets/icons/export.svg" alt="">
+                <p>NA</p>
+            </div>
+            <div class="layerItem" id = "PK">
+                <img src="./assets/icons/export.svg" alt="">
+                <p>PK</p>
+            </div>
+            <div class="layerItem" id = "NK">
+                <img src="./assets/icons/export.svg" alt="">
+                <p>NK</p>
+            </div>
+            <div class="layerItem" id = "SI">
+                <img src="./assets/icons/export.svg" alt="">
+                <p>SI</p>
+            </div>
         </div>
-        <div class="layerItem" id = "PK">
-            <img src="./assets/icons/export.svg" alt="">
-            <p>PK</p>
-        </div> 
-        <div class="layerItem" id = "NK">
-            <img src="./assets/icons/export.svg" alt="">
-            <p>NK</p>
-        </div> 
-        <div class="layerItem" id = "SI">
-            <img src="./assets/icons/export.svg" alt="">
-            <p>SI</p>
-        </div> 
+
     </div>
 </body>
 </html>
