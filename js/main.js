@@ -1,27 +1,45 @@
-import { PA, NA, PK, NK, SI, M1, M2, thin_width } from './components/lines.js';
+import {PA, NA, PK, NK, SI, M1, M2, thin_width} from './components/lines.js';
 import paper from 'paper';
-import { TP } from './components/rectangles.js';
-import { CPA, CNA, CNE, CM1, CSI, CW, dual_joint, CPK, CPE, CNK } from './components/joints.js';
+import {TP} from './components/rectangles.js';
+import { CPA,CNA,CNE,CM1,CSI,CW,dual_joint, CPK, CPE, CNK } from './components/joints.js';
+import { Layer, project, tool } from 'paper/dist/paper-core';
+
+
+/*
+ TODO: (remix)
+ 1) Write exportCIF()
+    a) L comp name, then P and points from Path
+    b) Goup all components by the fragment they are attatched to (get fragment while parsing data)
+2) Write zoom fit()
+    a) Find the bounding box for all elements or for all layers
+    b) Zoom the view (take its bounding box and divide by box from a)
+3) Fix scaling (when negative it takes abs() and the canvas becomes big)
+
+4) Different styles for different logical elements
+    
+ 
+ 
+ */
 
 const componentMapping = new Map([
-    ['PA', PA],
-    ['NA', NA],
-    ['M1', M1],
-    ['PK', PK],
-    ['NK', NK],
-    ['SI', SI],
-    ['M1', M1],
-    ['M2', M2],
-    ['TP', TP],
-    ['CPA', CPA],
-    ['CPK', CPK],
-    ['CPE', CPE],
-    ['CNA', CNA],
-    ['CNK', CNK],
-    ['CNE', CNE],
-    ['CSI', CSI],
-    ['CM1', CM1],
-    ['CW', CW]
+    ['PA',PA],
+    ['NA',NA],
+    ['M1',M1],
+    ['PK',PK],
+    ['NK',NK],
+    ['SI',SI],
+    ['M1',M1],
+    ['M2',M2],
+    ['TP',TP],
+    ['CPA',CPA],
+    ['CPK',CPK],
+    ['CPE',CPE],
+    ['CNA',CNA],
+    ['CNK',CNK],
+    ['CNE',CNE],
+    ['CSI',CSI],
+    ['CM1',CM1],
+    ['CW',CW]
     /*
     These are commented out because I havent't seen them anywhere in CIF
     ['CESL1SL2',dual_joint],
@@ -31,70 +49,76 @@ const componentMapping = new Map([
     ['CENEPA',dual_joint]*/
 ]);
 
-var gridPoints = 100;
-var filename = 'output.cif';
-const canvas = document.querySelector('#window');
-const { width, height } = canvas.getBoundingClientRect();
 
+
+var gridPoints = 100;
+var filename = "output.cif";
+const canvas = document.querySelector('#window');
 paper.setup(canvas);
-paper.view.viewSize = new paper.Size(document.body.clientWidth - 240, document.body.clientHeight);
+
 
 function parseCIF(file) {
     let reader = new FileReader();
     reader.readAsText(file);
 
-    var currentElement = '';
+    var currentElement = "";
     var addText = false;
-
-    reader.onload = function () {
-        console.log(reader.result);
-
-        for (let line of reader.result.split('\n')) {
-            if (line[0] === 'L') {
-                if (line[2] === 'T') {
-                    addText = true;
-                    currentElement = line.slice(3, -2);
-                } else {
-                    addText = false;
-                    currentElement = line.slice(2, -2);
+    reader.onload = function() {
+    console.log(reader.result);
+        for (let line of reader.result.split("\n")) {
+           if (line[0]=="L"){
+                if (line[2] == 'T'){
+                    addText=true;
+                    currentElement = line.slice(3,-2);
                 }
-            } else if (line.slice(0, 2) === 'P ') {
-                if (componentMapping.has(currentElement)) {
-                    //create a paper js layer if it was not created
-                    var currentLayer;
-                    if (!paper.project[currentElement]) {
-                        currentLayer = new paper.Layer({ name: currentElement });
-                        paper.project.addLayer(currentLayer);
-                    } else {
-                        currentLayer = paper.project[currentElement];
-                    }
-
-                    let coordsList = line.slice(2).replace(';', '').split(' ').map(Number);
-
-                    componentMapping.get(currentElement)({
-                        coordsList: coordsList,
-                        addText: addText,
-                        type: currentElement,
-                        layer: currentLayer
-                    });
-                } else {
-                    // alert('Could not parse ' + currentElement);
+                else{
+                    addText  = false;
+                    currentElement = line.slice(2,-2);
                 }
-            }
+           }
+           else if (line.slice(0,1) == "DS"){
+                const params = line.slice(2).trim().split(" ");
+
+           }
+           else if (line[0] == "P"){
+                if (componentMapping.has(currentElement)){
+                //create a paper js layer if it was not created
+                var currentLayer;
+                if (paper.project.getItem({name:currentElement, recursive:false})==null){
+                    currentLayer = new paper.Layer({name: currentElement});
+                    paper.project.addLayer(currentLayer);
+                    createLayerToggle(currentElement);
+                }
+                else{
+                    currentLayer = paper.project.layers[currentElement];
+
+                }
+                
+
+                let coordsList = line.trim().slice(2).replace(";","").split(" ").map(Number);
+                console.log(currentLayer);
+
+                componentMapping.get(currentElement)({coordsList:coordsList,addText: addText, type:currentElement,layer:currentLayer});
+                }
+           }
         }
-    };
-    reader.onerror = function () {
+    
+    }
+    reader.onerror = function() {
         console.log(reader.error);
-    };
+      };
+
+
 }
-// TODO: finish export
-// Remember that there is a lot of data which is in the file and not used for rendering
-function exportCIF() {
-    var file_data = '';
+
+function exportCIF(){
+    var file_data = "";
+    
+
 
     return file_data;
 }
-var drawGridLines = function (num_rectangles_wide, num_rectangles_tall, boundingRect) {
+var drawGridLines = function(num_rectangles_wide, num_rectangles_tall, boundingRect) {
     var width_per_rectangle = boundingRect.width / num_rectangles_wide;
     var height_per_rectangle = boundingRect.height / num_rectangles_tall;
     for (var i = 0; i <= num_rectangles_wide; i++) {
@@ -111,14 +135,14 @@ var drawGridLines = function (num_rectangles_wide, num_rectangles_tall, bounding
         var aLine = new paper.Path.Line(leftPoint, rightPoint);
         aLine.strokeColor = 'black';
     }
-};
+}
 function drawGrid(gridSize) {
-    var canvasWidth = canvas.getBoundingClientRect().width;
-    var canvasHeight = canvas.getBoundingClientRect().height;
-
+    var canvasWidth = paper.view.size.width;
+    var canvasHeight = paper.view.size.height;
+ 
     // Calculate the distance between each line
     var lineDistance = canvasWidth / gridSize;
-
+ 
     // Draw horizontal lines
     for (var i = 0; i <= gridSize; i++) {
         var yPos = i * lineDistance;
@@ -126,9 +150,9 @@ function drawGrid(gridSize) {
         var bottomPoint = new paper.Point(canvasWidth, yPos);
         var line = new paper.Path.Line(topPoint, bottomPoint);
         line.strokeColor = '#dee0df';
-        line.strokeWidth = thin_width;
+        line.strokeWidth=thin_width;
     }
-
+ 
     // Draw vertical lines
     for (var i = 0; i <= gridSize; i++) {
         var xPos = i * lineDistance;
@@ -136,68 +160,71 @@ function drawGrid(gridSize) {
         var rightPoint = new paper.Point(xPos, canvasHeight);
         var line = new paper.Path.Line(leftPoint, rightPoint);
         line.strokeColor = '#dee0df';
-        line.strokeWidth = thin_width;
+        line.strokeWidth=thin_width;
     }
     return lineDistance;
 }
 function download(data, filename, type) {
-    var file = new Blob([data], { type: type });
-    if (window.navigator.msSaveOrOpenBlob)
-        // IE10+
+    var file = new Blob([data], {type: type});
+    if (window.navigator.msSaveOrOpenBlob) // IE10+
         window.navigator.msSaveOrOpenBlob(file, filename);
-    else {
-        // Others
-        var a = document.createElement('a'),
-            url = URL.createObjectURL(file);
+    else { // Others
+        var a = document.createElement("a"),
+                url = URL.createObjectURL(file);
         a.href = url;
         a.download = filename;
         document.body.appendChild(a);
         a.click();
-        setTimeout(function () {
+        setTimeout(function() {
             document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }, 0);
+            window.URL.revokeObjectURL(url);  
+        }, 0); 
     }
 }
 
 const cifImport = document.getElementById('importCIF');
-cifImport.addEventListener('change', event => {
+cifImport.addEventListener('change', (event) => {
     console.log(event.target.files[0]);
-    parseCIF(event.target.files[0]);
+   parseCIF(event.target.files[0]); 
 });
 
 const cifExport = document.getElementById('exportCIF');
-cifExport.addEventListener('click', event => {
+cifExport.addEventListener('click', (event) => {
     download(exportCIF(), filename);
 });
 
 //Layyer visibility
-let layerMenu = document.getElementById('layerMenu');
-layerMenu.addEventListener('click', event => {
-    if (event.target.classList.has('active')) {
-        paper.project[event.target.id].deactivate();
-        event.target.classList.remove('active');
-    } else {
-        paper.project[event.target.id].activate();
-        event.target.classList.add('active');
+let layerMenu = document.getElementById("layerMenu");
+layerMenu.addEventListener('click', (event)=>{
+    console.log(event.target.id);
+    if (event.target.className=='active'){
+        paper.project.layers[event.target.id].visible = false;
+
+        event.target.className = '';
     }
-});
+    else{
+        paper.project.layers[event.target.id].visible = true;
+        event.target.className='active';
+    }
+})
 
 //Mouse coordinates
-const coordWindows = document.getElementById('coordWindow');
-function getMouseCoords(event) {
-    coordWindows.children[0].innerHTML = 'x: ' + event.point.x.toFixed(1);
-    coordWindows.children[1].innerHTML = 'y: ' + event.point.y.toFixed(1);
+const coordWindows = document.getElementById("coordWindow");
+function getMouseCoords(event){
+    coordWindows.innerHTML = event.point.x + " : " + event.point.y;    
+    setTimeout(()=>{
+        coordWindows.innerHTML = " : ";
+    },500);
 }
 paper.project.view.onMouseMove = getMouseCoords;
 
 //Moving the canvas
-var startPoint = new paper.Point([0, 0]);
-function getStartCoords(event) {
+var startPoint = new paper.Point([0,0]);
+function getStartCoords(event){
     startPoint = event.point;
 }
-function moveCanvas(event) {
-    paper.project.view.translate([event.point.x - startPoint.x, event.point.y - startPoint.y]);
+function moveCanvas(event){
+    paper.project.view.translate([event.point.x - startPoint.x,event.point.y - startPoint.y] );
 }
 paper.project.view.onMouseDown = getStartCoords;
 
@@ -205,33 +232,47 @@ paper.project.view.onMouseDrag = moveCanvas;
 
 //Choosing a tool
 
-const toolMenu = document.getElementById('sideMenu');
+const toolMenu = document.getElementById("sideMenu");
 
 let zoomFactor = 1;
 
 let zoomIncrement = 0.1;
 
-toolMenu.addEventListener('click', event => {
+
+toolMenu.addEventListener('click', (event)=>{
     console.log(zoomFactor);
-    switch (event.target.id) {
+    switch(event.target.id){
         case 'zoomIn':
-            zoomFactor += zoomIncrement;
-            paper.project.view.zoom = zoomFactor;
-            break;
+            zoomFactor+=zoomIncrement;
+            paper.project.view.zoom =zoomFactor;
+        break;
         case 'zoomOut':
-            zoomFactor -= zoomIncrement;
+            zoomFactor-=zoomIncrement;
             paper.project.view.zoom = zoomFactor;
-            break;
+        break;
         case 'reset':
-            console.log('reset');
-            break;
-        case 'importCIF':
+            console.log("reset");
+        break;
+
+            
+            
     }
 });
 
+
+function createLayerToggle(name){
+    const layerItem = document.createElement('p');
+    layerItem.className= 'layerItem';
+    layerItem.id = name;
+    layerItem.innerHTML = name;
+    layerMenu.appendChild(layerItem);
+
+}
+
+
 //Testing out all components
 /*TP({start:[20,20], end : [50,150]});
-
+ 
 single_joint({center : [100,300], type: 'CMA'});
 single_joint({center : [100,350], type: 'CM1'});
 dual_joint({start : [150,50], end : [150,100]});
