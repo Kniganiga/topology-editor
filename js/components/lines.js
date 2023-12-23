@@ -5,27 +5,35 @@ export const width = 2;
 export const bold_width = 10;
 export const thin_width = 1;
 
-export const PA = ({ start, end}) => {
+export const PA = ( {coordsList,addText, type ="PA", layer}) => {
     const path = new paper.Path();
-    path.add(new paper.Point(start), new paper.Point(end));
-    path.strokeColor = 'blue';
-    path.strokeWidth = width;
-    path.name = "PA";
-    
-};
-
-export const NA = ({ start, end}) => {
-    const path = new paper.Path();
-    path.add(new paper.Point(start), new paper.Point(end));
+    for (let i=0; i<coordsList.length; i+=2){
+        path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
+    }
     path.strokeColor = 'red';
     path.strokeWidth = width;
-    path.name = "NA";
+    path.name = type;
+    path.parent = layer;
+    path.closed = true;
+    
 };
-
-
-export const PK = ({ start, end}) => {
+export const NA = ( {coordsList,addText, type ="NA", layer}) => {
     const path = new paper.Path();
-    path.add(new paper.Point(start), new paper.Point(end));
+    for (let i=0; i<coordsList.length; i+=2){
+        path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
+    }
+    path.strokeColor = 'blue';
+    path.strokeWidth = width;
+    path.name = type;
+    path.parent = layer;
+    path.closed = true;
+    
+};
+export const PK = ({coordsList,addText, type ="NA", layer}) => {
+    const path = new paper.Path();
+    for (let i=0; i<coordsList.length; i+=2){
+        path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
+    }
     path.strokeColor = 'blue';
     const segmentLength=5;
     path.strokeWidth = width;
@@ -46,10 +54,6 @@ export const PK = ({ start, end}) => {
         arrow_path.add(vector.rotate(30).add(head_point), head_point,vector.rotate(-30).add(head_point));
         arrow_path.strokeWidth = path.strokeWidth;
         arrow_path.strokeColor = path.strokeColor;
-
-        
-
-        
 }
 
 };
@@ -90,32 +94,42 @@ export const NK = ({ start, end}) => {
  
 
 
-export const SI = ({ start, end, group }) => {
+export const SI = ({coordsList,addText, type ="SI", layer}) => {
     const path = new paper.Path();
-    path.add(new paper.Point(start), new paper.Point(end));
-    path.strokeColor = 'green';
-    path.strokeWidth =bold_width;
-    path.name = "SI";
-    if (group != undefined){
-        group.addChild(path);
+    for (let i=0; i<coordsList.length; i+=2){
+        path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
     }
+    path.strokeColor = 'green';
+    path.strokeWidth = bold_width;
+    path.name = type;
+    path.parent = layer;
+    path.closed = true;
+
 };
 
 
-export const M1 = ({ start, end}) => {
+export const M1 = ({coordsList,addText, type ="M1", layer}) => {
     const path = new paper.Path();
-    path.add(new paper.Point(start), new paper.Point(end));
+    for (let i=0; i<coordsList.length; i+=2){
+        path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
+    }
     path.strokeColor = 'black';
     path.strokeWidth = thin_width;
-    path.name = "M1";
+    path.name = type;
+    path.parent = layer;
+    path.closed = true;
 };
 
 
 
-export const M2 = ({ start, end }) => {
+export const M2 = ({coordsList,addText, type ="M2", layer}) => {
     const path = new paper.Path();
-    path.add(new paper.Point(start), new paper.Point(end));
+    for (let i=0; i<coordsList.length; i+=2){
+        path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
+    }
     path.strokeColor = 'cyan';
     path.strokeWidth = width;
-    path.name = "M2";
+    path.name = type;
+    path.parent = layer;
+    path.closed = true;
 };
