@@ -53,11 +53,13 @@ const componentMapping = new Map([
 
 var gridPoints = 100;
 var filename = "output.cif";
+var params;
 const canvas = document.querySelector('#window');
 paper.setup(canvas);
 
 
 function parseCIF(file) {
+
     let reader = new FileReader();
     reader.readAsText(file);
 
@@ -77,7 +79,8 @@ function parseCIF(file) {
                 }
            }
            else if (line.slice(0,1) == "DS"){
-                const params = line.slice(2).trim().split(" ");
+                params = line.slice(2).trim().split(" ");
+
 
            }
            else if (line[0] == "P"){
@@ -98,7 +101,7 @@ function parseCIF(file) {
                 let coordsList = line.trim().slice(2).replace(";","").split(" ").map(Number);
                 console.log(currentLayer);
 
-                componentMapping.get(currentElement)({coordsList:coordsList,addText: addText, type:currentElement,layer:currentLayer});
+                componentMapping.get(currentElement)({coordsList:coordsList,addText: addText, type:currentElement,layer:currentLayer,params:params});
                 }
            }
         }
@@ -111,13 +114,6 @@ function parseCIF(file) {
 
 }
 
-function exportCIF(){
-    var file_data = "";
-    
-
-
-    return file_data;
-}
 var drawGridLines = function(num_rectangles_wide, num_rectangles_tall, boundingRect) {
     var width_per_rectangle = boundingRect.width / num_rectangles_wide;
     var height_per_rectangle = boundingRect.height / num_rectangles_tall;
@@ -164,33 +160,10 @@ function drawGrid(gridSize) {
     }
     return lineDistance;
 }
-function download(data, filename, type) {
-    var file = new Blob([data], {type: type});
-    if (window.navigator.msSaveOrOpenBlob) // IE10+
-        window.navigator.msSaveOrOpenBlob(file, filename);
-    else { // Others
-        var a = document.createElement("a"),
-                url = URL.createObjectURL(file);
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function() {
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);  
-        }, 0); 
-    }
-}
-
 const cifImport = document.getElementById('importCIF');
 cifImport.addEventListener('change', (event) => {
     console.log(event.target.files[0]);
    parseCIF(event.target.files[0]); 
-});
-
-const cifExport = document.getElementById('exportCIF');
-cifExport.addEventListener('click', (event) => {
-    download(exportCIF(), filename);
 });
 
 //Layyer visibility
@@ -230,17 +203,22 @@ paper.project.view.onMouseDown = getStartCoords;
 
 paper.project.view.onMouseDrag = moveCanvas;
 
+
+//Selecting the item
+
+function selectItem(event){
+}
+
 //Choosing a tool
 
 const toolMenu = document.getElementById("sideMenu");
 
 let zoomFactor = 1;
 
-let zoomIncrement = 0.1;
+let zoomIncrement = 0.05;
 
 
 toolMenu.addEventListener('click', (event)=>{
-    console.log(zoomFactor);
     switch(event.target.id){
         case 'zoomIn':
             zoomFactor+=zoomIncrement;
@@ -250,16 +228,27 @@ toolMenu.addEventListener('click', (event)=>{
             zoomFactor-=zoomIncrement;
             paper.project.view.zoom = zoomFactor;
         break;
-        case 'reset':
-            console.log("reset");
+        case 'zoomFit':
+            // zoom fit 
+            var max_bound =new paper.Rectangle();
+            paper.project.layers.forEach(element => {
+                if (element.visible == true){
+                    max_bound = max_bound.unite(element.bounds);  
+                }   
+            });
+            paper.project.view.scale(paper.project.view.bounds.width/max_bound.width,paper.project.view.bounds.height/ max_bound.height);
+            zoomFactor = paper.project.view.zoom;
+
         break;
+        case 'select':
+            paper.project.view.onMouseMove = selectItem;
 
             
             
     }
 });
 
-
+//toggles are created when the CIF is parsed
 function createLayerToggle(name){
     const layerItem = document.createElement('p');
     layerItem.className= 'layerItem';
