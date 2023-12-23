@@ -1,50 +1,85 @@
 import {PA, NA, PK, NK, SI, M1, M2, thin_width} from './components/lines.js';
 import paper from 'paper';
 import {TP} from './components/rectangles.js';
-import { single_joint,dual_joint } from './components/joints.js';
+import { CPA,CNA,CNE,CM1,CSI,CW,dual_joint, CPK, CPE, CNK } from './components/joints.js';
+import { Layer, project, tool } from 'paper/dist/paper-core';
 
 
 const componentMapping = new Map([
     ['PA',PA],
     ['NA',NA],
+    ['M1',M1],
     ['PK',PK],
     ['NK',NK],
     ['SI',SI],
     ['M1',M1],
     ['M2',M2],
     ['TP',TP],
-    
+    ['CPA',CPA],
+    ['CPK',CPK],
+    ['CPE',CPE],
+    ['CNA',CNA],
+    ['CNK',CNK],
+    ['CNE',CNE],
+    ['CSI',CSI],
+    ['CM1',CM1],
+    ['CW',CW]
+    /*
+    These are commented out because I havent't seen them anywhere in CIF
+    ['CESL1SL2',dual_joint],
+    ['CENAPE',dual_joint],
+    ['CEPENA',dual_joint],
+    ['CEPANE',dual_joint],
+    ['CENEPA',dual_joint]*/
 ]);
 
-var gridSize = 100;
+
+
+var gridPoints = 100;
 var filename = "output.cif";
-paper.setup(document.querySelector('#window'));
+const canvas = document.querySelector('#window');
+paper.setup(canvas);
 
 
 function parseCIF(file) {
     let reader = new FileReader();
     reader.readAsText(file);
+
+    var currentElement = "";
+    var addText = false;
     reader.onload = function() {
     console.log(reader.result);
         for (let line of reader.result.split("\n")) {
-            if (componentMapping.has(line.slice(0,2))){
-                const params = line.slice(3).split(' ').map(Number);
-                console.log("params =",params)
-                componentMapping.get(line.slice(0,2))({start:[params[0],params[1]], end:[params[2],params[3]]});
-            }
-            else if (['CPA', 'CPK', 'CPE', 'CNA', 'CNK', 'CNE', 'CSI', 'CM1'].includes(line.slice(0,3))){
-                const params = line.slice(4).split(' ').map(Number);
-                single_joint({center:[params[0],params[1]],type:line.slice(0,3)});
-            }
-            else if  (line.slice(0,2) ==  'CW'){
-                const params = line.slice(3).split(' ').map(Number);
-                single_joint({center:[params[0],params[1]],type:line.slice(0,2)});
-            }
-            else if (['CENAPE','CEPENA','CEPANE','CENEPA'].includes(line.slice(0,6))){
-                const params = line.slice(7).split(' ').map(Number);
-                dual_joint({start:[params[0], params[1]], end:[params[2], params[3]],type:line.slice(0,6)});
-            }
+           if (line[0]=="L"){
+                if (line[2] == 'T'){
+                    addText=true;
+                    currentElement = line.slice(3,-2);
+                }
+                else{
+                    addText  = false;
+                    currentElement = line.slice(2,-2);
+                }
+           }
+           else if (line.slice(0,2) == "P "){
+                if (componentMapping.has(currentElement)){
+                //create a paper js layer if it was not created
+                var currentLayer;
+                if ( ! paper.project[currentElement]){
+                    currentLayer = new paper.Layer({name: currentElement});
+                    paper.project.addLayer(currentLayer);
+                }
+                else{
+                    currentLayer = paper.project[currentElement];
+                }
+
+                let coordsList = line.slice(2).replace(";","").split(" ").map(Number);
+
+                    componentMapping.get(currentElement)({coordsList:coordsList,addText: addText, type:currentElement, layer:currentLayer});
+                }
+                else {console.log("Could not parse " + currentElement);}
+           }
         }
+    
     }
     reader.onerror = function() {
         console.log(reader.error);
@@ -52,31 +87,13 @@ function parseCIF(file) {
 
 
 }
-
+// TODO: finish export
+// Remember that there is a lot of data which is in the file and not used for rendering
 function exportCIF(){
     var file_data = "";
-    let layer = paper.project.activeLayer.children
-        for (var i =0;i<layer.length;i++){
-            if (layer[i].name != null){
-                console.log(layer[i]);
-                if (layer[i].name =='TP'){
-                    file_data+="DS\nLAYER "+paper.project.activeLayer.id + "\n" + layer[i].name + " ";
-                    // Transistor
-                    file_data+=layer[i].children[2].firstSegment.point.x + " "+ layer[i].children[2].firstSegment.point.y+ " " +layer[i].children[2].lastSegment.point.x+ " "+layer[i].children[2].lastSegment.point.x+"\nDF\n";
-                }
-                else if (['CPA', 'CPK', 'CPE', 'CNA', 'CNK', 'CNE', 'CSI', 'CM1', 'CW'].includes(layer[i].name)){
-                    file_data+="DS\nLAYER "+layer.id + "\n" + layer[i].name + " ";
-                    //Point 
-                   file_data+=layer[i].position.x + " " + layer[i].position.y+"\nDF\n";
-                }
-                else{
-                    file_data+="DS\nLAYER "+paper.project.activeLayer.id + "\n" + layer[i].name + " ";
-                    //Start and end, first and last segment
-                    file_data+=layer[i].firstSegment.point.x + " "+ layer[i].firstSegment.point.y+ " " +layer[i].lastSegment.point.x+ " "+layer[i].lastSegment.point.y+"\nDF\n";
-                }
-            }
-        }
-    console.log(file_data);    
+
+
+
     return file_data;
 }
 var drawGridLines = function(num_rectangles_wide, num_rectangles_tall, boundingRect) {
@@ -123,6 +140,7 @@ function drawGrid(gridSize) {
         line.strokeColor = '#dee0df';
         line.strokeWidth=thin_width;
     }
+    return lineDistance;
 }
 function download(data, filename, type) {
     var file = new Blob([data], {type: type});
@@ -142,22 +160,88 @@ function download(data, filename, type) {
     }
 }
 
-const cifImport = document.getElementById('cifImport');
+const cifImport = document.getElementById('importCIF');
 cifImport.addEventListener('change', (event) => {
     console.log(event.target.files[0]);
    parseCIF(event.target.files[0]); 
 });
 
-const cifExport = document.getElementById('cifExport');
+const cifExport = document.getElementById('exportCIF');
 cifExport.addEventListener('click', (event) => {
     download(exportCIF(), filename);
 });
 
+//Layyer visibility
+let layerMenu = document.getElementById("layerMenu");
+layerMenu.addEventListener('click', (event)=>{
+    if (event.target.classList.has('active')){
+        paper.project[event.target.id].deactivate();
+        event.target.classList.remove('active');
+    }
+    else{
+        paper.project[event.target.id].activate();
+        event.target.classList.add('active');
+    }
+})
 
-drawGrid(gridSize);
+//Mouse coordinates
+const coordWindows = document.getElementById("coordWindow");
+function getMouseCoords(event){
+    coordWindows.innerHTML = event.point.x + " : " + event.point.y;    
+    setTimeout(()=>{
+        coordWindows.innerHTML = " : ";
+    },500);
+}
+paper.project.view.onMouseMove = getMouseCoords;
+
+//Moving the canvas
+var startPoint = new paper.Point([0,0]);
+function getStartCoords(event){
+    startPoint = event.point;
+}
+function moveCanvas(event){
+    paper.project.view.translate([event.point.x - startPoint.x,event.point.y - startPoint.y] );
+}
+paper.project.view.onMouseDown = getStartCoords;
+
+paper.project.view.onMouseDrag = moveCanvas;
+
+
+//Choosing a tool
+
+const toolMenu = document.getElementById("sideMenu");
+
+let zoomFactor = 1;
+
+let zoomIncrement = 0.1;
+
+
+toolMenu.addEventListener('click', (event)=>{
+    console.log(zoomFactor);
+    switch(event.target.id){
+        case 'zoomIn':
+            zoomFactor+=zoomIncrement;
+            paper.project.view.zoom =zoomFactor;
+        break;
+        case 'zoomOut':
+            zoomFactor-=zoomIncrement;
+            paper.project.view.zoom = zoomFactor;
+        break;
+        case 'reset':
+            console.log("reset");
+        break;
+        case 'importCIF':
+
+            
+            
+    }
+});
+
+
+
 
 //Testing out all components
-TP({start:[20,20], end : [50,50]});
+/*TP({start:[20,20], end : [50,150]});
  
 single_joint({center : [100,300], type: 'CMA'});
 single_joint({center : [100,350], type: 'CM1'});
@@ -166,4 +250,6 @@ var dist = 50;
 for (let f of componentMapping.values()){
     f({start:[100,dist], end:[300,dist]});
     dist+=50;
-}
+}*/
+
+//let gridDistance = drawGrid(gridPoints);
