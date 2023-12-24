@@ -10,6 +10,7 @@ export const CPA = ({coordsList,addText, type ="CPA", layer}) => {
     path.strokeWidth = thin_width;
     path.name = type;
     path.parent = layer;
+    path.opacity = 0.5;
     path.closed = true;
 };
 //arrows
@@ -18,10 +19,11 @@ export const CPK = ({coordsList,addText, type ="CPK", layer}) => {
     for (let i=0; i<coordsList.length; i+=2){
         path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
     }
-    path.strokeColor = 'red';
+    path.fillColor= 'red';
     path.strokeWidth = thin_width;
     path.name = type;
     path.parent = layer;
+    path.opacity = 0.5;
     path.closed = true;
 };
 //what is this shit???
@@ -30,10 +32,11 @@ export const CPE = ({coordsList,addText, type ="CPE", layer}) => {
     for (let i=0; i<coordsList.length; i+=2){
         path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
     }
-    path.strokeColor = 'purple';
+    path.fillColor = 'purple';
     path.strokeWidth = thin_width;
     path.name = type;
     path.parent = layer;
+    path.opacity = 0.5;
     path.closed = true;
 };
 export const CNA = ({coordsList,addText, type ="CNA", layer}) => {
@@ -41,10 +44,11 @@ export const CNA = ({coordsList,addText, type ="CNA", layer}) => {
     for (let i=0; i<coordsList.length; i+=2){
         path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
     }
-    path.strokeColor = 'red';
+    path.fillColor= 'red';
     path.strokeWidth = width;
     path.name = type;
     path.parent = layer;
+    path.opacity = 0.5;
     path.closed = true;
 };
 //arrows
@@ -53,11 +57,12 @@ export const CNK = ({coordsList,addText, type ="CNK", layer}) => {
     for (let i=0; i<coordsList.length; i+=2){
         path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
     }
-    path.strokeColor = 'black';
+    path.fillColor = 'black';
     path.strokeWidth = thin_width;
     path.name = type;
     path.parent = layer;
-    path.closed = true;
+    path.opacity = 0.5;
+    path.closed = true;;
 };
 //no clue
 export const CNE = ({coordsList,addText, type ="CNE", layer}) => {
@@ -65,11 +70,11 @@ export const CNE = ({coordsList,addText, type ="CNE", layer}) => {
     for (let i=0; i<coordsList.length; i+=2){
         path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
     }
-    path.strokeColor = 'black';
+    path.fillColor = 'black';
     path.strokeWidth = thin_width;
     path.name = type;
     path.parent = layer;
-    path.closed = true;
+    //path.closed = true;
 };
 //
 export const CSI = ({coordsList,addText, type ="CSI", layer}) => {
@@ -77,10 +82,11 @@ export const CSI = ({coordsList,addText, type ="CSI", layer}) => {
     for (let i=0; i<coordsList.length; i+=2){
         path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
     }
-    path.strokeColor = 'green';
+    path.fillColor = 'green';
     path.strokeWidth = thin_width;
     path.name = type;
     path.parent = layer;
+    path.opacity = 0.5;
     path.closed = true;
 };
 //
@@ -89,21 +95,22 @@ export const CM1 = ({coordsList,addText, type ="CM1", layer}) => {
     for (let i=0; i<coordsList.length; i+=2){
         path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
     }
-    path.strokeColor = 'black';
+    path.fillColor = 'black';
     path.strokeWidth = thin_width;
     path.name = type;
     path.parent = layer;
-    path.closed = true;
+    //path.closed = true;
 };
 export const CW = ({coordsList,addText, type ="CW", layer}) => {
     const path = new paper.Path();
     for (let i=0; i<coordsList.length; i+=2){
         path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
     }
-    path.strokeColor = 'black';
+    path.strokeColor= 'black';
     path.strokeWidth = thin_width;
     path.name = type;
     path.parent = layer;
+    path.opacity = 0.5;
     path.closed = true;
 };
 
