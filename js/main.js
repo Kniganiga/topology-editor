@@ -4,22 +4,6 @@ import { TP } from './components/rectangles.js';
 import { CPA, CNA, CNE, CM1, CSI, CW, dual_joint, CPK, CPE, CNK } from './components/joints.js';
 import { Layer, project, tool } from 'paper/dist/paper-core';
 
-/*
- TODO: (remix)
- 1) Write exportCIF()
-    a) L comp name, then P and points from Path
-    b) Goup all components by the fragment they are attatched to (get fragment while parsing data)
-2) Write zoom fit()
-    a) Find the bounding box for all elements or for all layers
-    b) Zoom the view (take its bounding box and divide by box from a)
-3) Fix scaling (when negative it takes abs() and the canvas becomes big)
-
-4) Different styles for different logical elements
-    
- 
- 
- */
-
 const componentMapping = new Map([
     ['PA', PA],
     ['NA', NA],
@@ -68,15 +52,15 @@ function parseCIF(file) {
     let currentElement = '';
     let addText = false;
     reader.onload = function () {
-        console.log(reader.result);
-        for (let line of reader.result.split('\n')) {
+        for (let line of reader.result.replace('\n','').split(';')) {
+            line = line.trim();
             if (line[0] === 'L') {
                 if (line[2] === 'T') {
                     addText = true;
-                    currentElement = line.slice(3, -2);
+                    currentElement = line.slice(2);
                 } else {
                     addText = false;
-                    currentElement = line.slice(2, -2);
+                    currentElement = line.slice(2);
                 }
             } else if (line.slice(0, 1) === 'DS') {
                 params = line.slice(2).trim().split(' ');
@@ -92,9 +76,8 @@ function parseCIF(file) {
                     } else {
                         currentLayer = paper.project.layers[currentElement];
                     }
+                    let coordsList = line.slice(2).split(' ').filter(function (el) { return el != ''; }).map(Number);
 
-                    let coordsList = line.trim().slice(2).replace(';', '').split(' ').map(Number);
-                    console.log(currentLayer);
 
                     componentMapping.get(currentElement)({
                         coordsList: coordsList,
@@ -237,6 +220,7 @@ toolMenu.addEventListener('click', event => {
             paper.project.view.scale(paper.project.view.bounds.width / max_bound.width);
 
             zoomFactor = paper.project.view.zoom;
+            paper.project.view.update();
 
             break;
         case 'select':
