@@ -1,16 +1,18 @@
 import paper from 'paper';
 
 
-export const width = 2;
+export const width = 4;
 export const bold_width = 10;
-export const thin_width = 1;
+export const thin_width = 2;
 
 export const PA = ( {coordsList,addText, type ="PA", layer}) => {
     const path = new paper.Path();
     for (let i=0; i<coordsList.length; i+=2){
         path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
     }
-    path.strokeColor = 'red';
+    //path.strokeColor = 'red';
+    path.fillColor = 'red';
+    path.opacity = 0.5;
     path.strokeWidth = width;
     path.name = type;
     path.parent = layer;
@@ -22,9 +24,11 @@ export const NA = ( {coordsList,addText, type ="NA", layer}) => {
     for (let i=0; i<coordsList.length; i+=2){
         path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
     }
-    path.strokeColor = 'blue';
+    //path.strokeColor = 'blue';
+    path.fillColor = 'blue';
     path.strokeWidth = width;
     path.name = type;
+    path.opacity = 0.5;
     path.parent = layer;
     path.closed = true;
     
@@ -34,27 +38,12 @@ export const PK = ({coordsList,addText, type ="NA", layer}) => {
     for (let i=0; i<coordsList.length; i+=2){
         path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
     }
-    path.strokeColor = 'blue';
+   // path.strokeColor = 'blue';
+    path.fillColor = 'blue';
+    path.opacity = 0.5
     const segmentLength=5;
     path.strokeWidth = width;
     path.name = "PK";
-
-    const distance = path.length;
-    console.log(distance);
-    const interval = 50; // Define the interval in pixels
-    const arrowCount = Math.floor(distance / interval);
-    const arrowSize =10;
-    for (var i = 1; i <= arrowCount-1; i++) {
-        var t = i *interval;
-        var head_point = path.getPointAt(t+arrowSize);
-        var tail_point = path.getPointAt(t);
-        var vector = tail_point.subtract(head_point);
-        var arrow_path = new paper.Path();
-        console.log((vector.rotate(30)+head_point));
-        arrow_path.add(vector.rotate(30).add(head_point), head_point,vector.rotate(-30).add(head_point));
-        arrow_path.strokeWidth = path.strokeWidth;
-        arrow_path.strokeColor = path.strokeColor;
-}
 
 };
 
@@ -62,31 +51,12 @@ export const PK = ({coordsList,addText, type ="NA", layer}) => {
 export const NK = ({ start, end}) => {
     const path = new paper.Path();
     path.add(new paper.Point(start), new paper.Point(end));
-    path.strokeColor = 'red';
+   // path.strokeColor = 'red';
+    path.fillColor = 'red';
     const segmentLength=5;
     path.strokeWidth = width;
+    path.opacity = 0.5;
     path.name = "NK";
-
-    const distance = path.length;
-    console.log(distance);
-    const interval = 50; // Define the interval in pixels
-    const arrowCount = Math.floor(distance / interval);
-    const arrowSize =10;
-    for (var i = 1; i <= arrowCount-1; i++) {
-        var t = i *interval;
-        var head_point = path.getPointAt(t+arrowSize);
-        var tail_point = path.getPointAt(t);
-        var vector = tail_point.subtract(head_point);
-        var arrow_path = new paper.Path();
-        console.log((vector.rotate(30)+head_point));
-        arrow_path.add(vector.rotate(30).add(head_point), head_point,vector.rotate(-30).add(head_point));
-        arrow_path.strokeWidth = path.strokeWidth;
-        arrow_path.strokeColor = path.strokeColor;
-
-        
-
-        
-}
 
 };
 
@@ -99,10 +69,12 @@ export const SI = ({coordsList,addText, type ="SI", layer}) => {
     for (let i=0; i<coordsList.length; i+=2){
         path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
     }
-    path.strokeColor = 'green';
+    //path.strokeColor = 'green';
+    path.fillColor = 'green';
     path.strokeWidth = bold_width;
     path.name = type;
     path.parent = layer;
+    path.opacity = 0.5;
     path.closed = true;
 
 };
@@ -113,10 +85,12 @@ export const M1 = ({coordsList,addText, type ="M1", layer}) => {
     for (let i=0; i<coordsList.length; i+=2){
         path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
     }
-    path.strokeColor = 'black';
-    path.strokeWidth = thin_width;
+    //path.strokeColor = 'black';
+    path.fillColor = 'gray';
+    path.strokeWidth =width;
     path.name = type;
     path.parent = layer;
+    path.opacity = 0.5;
     path.closed = true;
 };
 
@@ -127,9 +101,11 @@ export const M2 = ({coordsList,addText, type ="M2", layer}) => {
     for (let i=0; i<coordsList.length; i+=2){
         path.add(new paper.Point([coordsList[i], coordsList[i+1]]));
     }
-    path.strokeColor = 'cyan';
+   // path.strokeColor = 'cyan';
+    path.fillColor = 'cyan';
     path.strokeWidth = width;
     path.name = type;
     path.parent = layer;
+    path.opacity = 0.5;
     path.closed = true;
 };
