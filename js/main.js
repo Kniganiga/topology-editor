@@ -10,7 +10,6 @@ const canvas = document.querySelector('#window');
 const { width } = canvas.getBoundingClientRect();
 console.log(width);
 paper.setup(canvas);
-
 paper.view.viewSize = new paper.Size(width - 30, document.body.clientHeight);
 const layerMenu = document.getElementById('layerMenu');
 
@@ -148,6 +147,8 @@ paper.project.view.onMouseDown = getStartCoords;
 
 paper.project.view.onMouseDrag = moveCanvas;
 
+
+
 //Selecting the item
 
 function selectItem(event) {}
@@ -166,6 +167,8 @@ document.addEventListener('wheel', event => {
     const res = paper.project.view.zoom + increment;
     paper.project.view.zoom = res >= 1 ? 1 : res <= 0.05 ? 0.05 : res;
 });
+//Prevent canvas from scrolling when zooming
+canvas.addEventListener('wheel',(event)=>{event.preventDefault();})
 
 toolMenu.addEventListener('click', event => {
     switch (event.target.id) {
