@@ -1,36 +1,7 @@
-import { PA, NA, PK, NK, SI, M1, M2, thin_width } from './components/lines.js';
 import paper from 'paper';
-import { TP } from './components/rectangles.js';
-import { CPA, CNA, CNE, CM1, CSI, CW, dual_joint, CPK, CPE, CNK } from './components/joints.js';
 import { Layer, project, tool } from 'paper/dist/paper-core';
+import { addNewElement, layerComponent,layerStyle } from './components/layerComponent';
 
-const componentMapping = new Map([
-    ['PA', PA],
-    ['NA', NA],
-    ['M1', M1],
-    ['PK', PK],
-    ['NK', NK],
-    ['SI', SI],
-    ['M1', M1],
-    ['M2', M2],
-    ['TP', TP],
-    ['CPA', CPA],
-    ['CPK', CPK],
-    ['CPE', CPE],
-    ['CNA', CNA],
-    ['CNK', CNK],
-    ['CNE', CNE],
-    ['CSI', CSI],
-    ['CM1', CM1],
-    ['CW', CW]
-    /*
-    These are commented out because I havent't seen them anywhere in CIF
-    ['CESL1SL2',dual_joint],
-    ['CENAPE',dual_joint],
-    ['CEPENA',dual_joint],
-    ['CEPANE',dual_joint],
-    ['CENEPA',dual_joint]*/
-]);
 
 let gridPoints = 100;
 let filename = 'output.cif';
@@ -65,7 +36,7 @@ function parseCIF(file) {
             } else if (line.slice(0, 1) === 'DS') {
                 params = line.slice(2).trim().split(' ');
             } else if (line[0] === 'P') {
-                if (componentMapping.has(currentElement)) {
+                if (!layerStyle.has(currentElement)) addNewElement(currentElement); 
                     //create a paper js layer if it was not created
                     let currentLayer;
                     if (paper.project.getItem({ name: currentElement, recursive: false }) === null) {
@@ -79,14 +50,13 @@ function parseCIF(file) {
                     let coordsList = line.slice(2).split(' ').filter(function (el) { return el != ''; }).map(Number);
 
 
-                    componentMapping.get(currentElement)({
+                    layerComponent({
                         coordsList: coordsList,
                         addText: addText,
                         type: currentElement,
                         layer: currentLayer,
                         params: params
                     });
-                }
             }
         }
     };
