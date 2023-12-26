@@ -8,16 +8,38 @@
     <script src="./js/main.js" type="module"></script>
 </head>
 <body>
-    <div id="toolbar">
-        <!-- Toolbar elements will go here -->
+    <div class="wrapper">
+        <div id="sideMenu" class="menu">
+            <div>
+                <h5 class="title">Coords</h5>
+
+                <input type="file" name="cifFile" id="importCIF" style="display:none">
+                <label for = "importCIF"><img  class="toolIcon" src="./assets/icons/import.svg" alt="Import" ></label>
+                <img id="zoomFit" class="toolIcon" src="./assets/icons/reset.svg" alt="Zoom Fit">
+                <img id="zoomIn" class="toolIcon" src="./assets/icons/zoomIn.svg" alt="Zoom In">
+                <img id="zoomOut" class="toolIcon" src="./assets/icons/zoomOut.svg" alt="Zoom Out">
+                <img id="select" class="toolIcon" src="./assets/icons/select.svg" alt="Select">
+            </div>
+
+
+            <div id="coordWindow" class="coordsWidow">
+                <p>x: -</p>
+                <p>y: -</p>
+            </div>
+        </div>
+
+
+        <div>
+            <canvas id="window" class="canvas" style=""></canvas>
+        </div>
+
+        <div id="layerMenu" class="menu">
+            <h5>Layers</h5>
+            <div id="layerItems"></div>
+
+             
+        </div>
+
     </div>
-
-    <nav id="top-menu">
-        <!-- Top menu elements will go here -->
-    </nav>
-
-    <canvas id="window" style="width: 100vw; height: 100vh"></canvas>
-
 </body>
 </html>
-
