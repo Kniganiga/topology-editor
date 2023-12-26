@@ -2,7 +2,6 @@ import paper from 'paper';
 import { Layer, project, tool } from 'paper/dist/paper-core';
 import { addNewElement, layerComponent,layerStyle } from './components/layerComponent';
 
-
 let gridPoints = 100;
 let filename = 'output.cif';
 let params;
@@ -12,12 +11,22 @@ console.log(width);
 paper.setup(canvas);
 paper.view.viewSize = new paper.Size(width - 30, document.body.clientHeight);
 const layerMenu = document.getElementById('layerMenu');
+const groupMenu = document.getElementById('groupMenu');
+
+const group = new Map([
+    ['Карманы', ['KN', 'KP']],
+    ['Шины', ['PA', 'NA', 'PK', 'NK', 'SI', 'M1', 'M2']],
+    ['Контакты', ['CPA', 'CPK', 'CPE', 'CNA', 'CNK', 'CNE', 'CSI', 'CM1', 'CW', 'CM1']],
+    ['Транзисторы', ['TP', 'TN']]
+]);
+
 
 function parseCIF(file) {
     console.log('parse');
     let reader = new FileReader();
     reader.readAsText(file);
     layerMenu.querySelector('#layerItems').innerHTML = '';
+    groupMenu.querySelector('#groupItems').innerHTML = '';
 
     let currentElement = '';
     let addText = false;
@@ -56,6 +65,18 @@ function parseCIF(file) {
                         layer: currentLayer,
                         params: params
                     });
+
+            }
+        }
+        for (let key of group.keys()) {
+            let isGroupEmpty = true;
+            for (let item of group.get(key)) {
+                if (document.getElementById(item)) {
+                    isGroupEmpty = false;
+                }
+            }
+            if (!isGroupEmpty) {
+                createGroupToggle(key);
             }
         }
     };
@@ -126,6 +147,21 @@ layerMenu.addEventListener('click', event => {
     }
 });
 
+groupMenu.addEventListener('click', event => {
+    if (event.target.classList.contains('groupItem')) {
+        toggleGroup(event);
+    }
+});
+
+function toggleGroup(event) {
+    event.target.classList.toggle('disabled');
+    for (let item of group.get(event.target.id)) {
+        if (paper.project.layers[item]) {
+            paper.project.layers[item].visible = !event.target.classList.contains('disabled');
+        }
+    }
+}
+
 //Mouse coordinates
 const coordWindows = document.getElementById('coordWindow');
 function getMouseCoords(event) {
@@ -146,7 +182,6 @@ function moveCanvas(event) {
 paper.project.view.onMouseDown = getStartCoords;
 
 paper.project.view.onMouseDrag = moveCanvas;
-
 
 
 //Selecting the item
@@ -208,6 +243,14 @@ function createLayerToggle(name) {
     layerItem.id = name;
     layerItem.innerHTML = name;
     layerMenu.querySelector('#layerItems').appendChild(layerItem);
+}
+
+function createGroupToggle(name) {
+    const groupItem = document.createElement('p');
+    groupItem.className = 'groupItem';
+    groupItem.id = name;
+    groupItem.innerHTML = name;
+    groupMenu.querySelector('#groupItems').appendChild(groupItem);
 }
 
 //Testing out all components
